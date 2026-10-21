@@ -174,7 +174,7 @@ that trips it up.
 
 - [amagilabs on GitHub](https://github.com/amagilabs): all of the small open-source tools from
   AmagiLabs (Amagisolutionsgroup, Inc.).
-- [legal-review-skills](https://github.com/amagilabs/legal-review-skills): Claude Code skills
+- [amagi-legal-review-skills](https://github.com/amagilabs/amagi-legal-review-skills): Claude Code skills
   for a first-pass review of contracts and leases.
 
 ## Development
