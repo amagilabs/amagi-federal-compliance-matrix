@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+.venv*/
+.env
+build/
+dist/
+out/
+*_matrix.md
+*_matrix.xlsx
+*_matrix.csv
+*_matrix.json

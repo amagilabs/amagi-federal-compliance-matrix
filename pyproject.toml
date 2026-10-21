@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "amagi-shall"
+version = "0.1.0"
+description = "Turn a federal RFP or solicitation PDF into a compliance matrix (XLSX + markdown) with a blank response column, and carry your answers forward when an amendment drops."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "AmagiLabs (Amagisolutionsgroup, Inc.)", email = "dev@amagisolutionsgroup.com" }]
+keywords = ["rfp", "solicitation", "compliance-matrix", "government-contracting", "far", "proposal", "shall", "cli"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Environment :: Console",
+    "Topic :: Office/Business",
+    "Topic :: Text Processing",
+]
+dependencies = [
+    "pdfplumber>=0.10",
+    "openpyxl>=3.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[project.urls]
+Homepage = "https://github.com/amagilabs/amagi-shall"
+
+[project.scripts]
+amagi-shall = "amagi_shall.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
