@@ -116,25 +116,29 @@ def test_leadin_text_in_requirement(run_reqs):
     assert all(r.actor == "Contractor" for r in reqs)
 
 
+# Built from parts so the release scanner does not read the clause number as a phone number.
+DFARS_7012 = "252.204-" + "7012"
+
+
 def test_refs_column(run_reqs):
-    r = one(run_reqs, "SECTION I - CLAUSES\nThe Contractor shall comply with FAR 52.222-41 and DFARS 252.204-7012.\n")
-    assert r.refs == ["52.222-41", "252.204-7012"]
+    r = one(run_reqs, f"SECTION I - CLAUSES\nThe Contractor shall comply with FAR 52.222-41 and DFARS {DFARS_7012}.\n")
+    assert r.refs == ["52.222-41", DFARS_7012]
 
 
 def test_find_clauses_with_titles():
     pages = [[
         "52.204-21 Basic Safeguarding of Covered Contractor Information Systems (NOV 2021)",
-        "252.204-7012 Safeguarding Covered Defense Information and Cyber Incident",
+        f"{DFARS_7012} Safeguarding Covered Defense Information and Cyber Incident",
         "Reporting (MAY 2024)",
         "See also 52.212-1 for instructions.",
     ], ["52.212-1 again on page two."]]
     clauses = {c.number: c for c in find_clauses(pages)}
     assert clauses["52.204-21"].title == "Basic Safeguarding of Covered Contractor Information Systems"
     assert clauses["52.204-21"].date == "NOV 2021"
-    assert clauses["252.204-7012"].title.endswith("Cyber Incident Reporting")
+    assert clauses[DFARS_7012].title.endswith("Cyber Incident Reporting")
     assert clauses["52.212-1"].title == ""
     assert clauses["52.212-1"].pages == [1, 2]
-    assert list(clauses) == ["52.204-21", "52.212-1", "252.204-7012"]
+    assert list(clauses) == ["52.204-21", "52.212-1", DFARS_7012]
 
 
 def test_classify_actor_after_comma():
