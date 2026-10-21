@@ -128,9 +128,11 @@ The rules were tuned on two public draft solicitations, which aren't in this rep
 
 - A Department of Energy draft RFP Section L for the Strategic Petroleum Reserve management and
   operating contract, 51 pages: 230 requirements (180 offeror, 26 contractor, 24 government)
-  and 15 FAR/DFARS clauses, in about 20 seconds.
+  and 15 FAR/DFARS clauses.
 - A Navy draft Sections L and M for a multiple-award IDIQ, 52 pages: 347 requirements (252
-  offeror, 9 contractor, 86 government) and 14 clauses, in about 23 seconds.
+  offeror, 9 contractor, 86 government) and 14 clauses.
+
+Each took about 10 seconds on a Windows desktop.
 
 Abbreviations the solicitation defines, such as "Department of Energy (DOE)", are read as the
 Government. Running headers, footers, page lines such as "Section L, Page iii" and table of
