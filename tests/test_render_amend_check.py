@@ -30,7 +30,7 @@ def test_markdown_escapes_pipes():
 
 def test_csv_and_json():
     m = matrix([req("C.1-01", "Do it.", page_end=2)])
-    rows = list(csv.reader(io.StringIO(to_csv(m).lstrip("﻿"))))
+    rows = list(csv.reader(io.StringIO(to_csv(m).lstrip("\ufeff"))))
     assert rows[0][:3] == ["ID", "Section", "Section Title"]
     assert rows[1][0] == "C.1-01" and "1-2" in rows[1]
     data = json.loads(to_json(m))
