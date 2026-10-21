@@ -10,7 +10,7 @@ from typing import List, Optional
 from . import __version__
 from .amend import carry_forward
 from .check import check, report
-from .detect import Options, detect, find_clauses
+from .detect import Options, detect, find_clauses, government_names
 from .extract import ExtractError, NoTextError, load
 from .render import Matrix, stdout_text, summary_lines, write_outputs
 
@@ -101,7 +101,7 @@ def _build(args: argparse.Namespace) -> Matrix:
         include_will=not args.no_will, include_should=args.include_should,
         offeror_only=args.offeror_only,
         skip_ucf=[x.strip() for x in args.skip_ucf.split(",") if x.strip()],
-        government_names=args.government,
+        government_names=list(args.government) + government_names(doc.pages),
     )
     from .segment import walk
 

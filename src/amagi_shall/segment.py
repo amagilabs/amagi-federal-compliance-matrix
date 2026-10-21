@@ -27,6 +27,7 @@ class Sentence:
     ucf: str = ""
     leadin: str = ""
     marker: str = ""
+    role: str = ""  # "leadin" when list items follow and carry this sentence
 
 
 # --- line classifiers -------------------------------------------------------
@@ -41,7 +42,7 @@ _UCF = re.compile(
 )
 _PART = re.compile(r"^PART\s+(?:[IVX]{1,4}|\d{1,2})\b(?:\s*[-–—:.]\s*.*)?$")
 _ATTACH = re.compile(
-    r"^(?P<kind>ATTACHMENT|EXHIBIT|APPENDIX|Attachment|Exhibit|Appendix)\s+(?P<id>[A-Z]|\d{1,3})\b"
+    r"^(?P<kind>ATTACHMENT|EXHIBIT|APPENDIX|Attachment|Exhibit|Appendix)\s+(?P<id>[A-Z](?:-\d{1,3})?|\d{1,3})\b"
     r"\s*(?:[-–—:.]\s*(?P<title>.{0,90}))?$"
 )
 _NUMBERED = re.compile(
@@ -50,7 +51,7 @@ _NUMBERED = re.compile(
 _MARKER = re.compile(
     r"^(?P<m>\((?:[a-z]{1,2}|[ivx]{1,5}|\d{1,2})\)|(?:[a-z]|\d{1,2})[.)]|[•▪●◦‣⁃∙*\-–])\s+(?P<rest>\S.*)$"
 )
-_TERMINAL = re.compile(r"[.;:!?][\"'”)]*$|\band$|\bor$")
+_TERMINAL = re.compile(r"[.;:!?][\"'”)]*$|[;,]\s*(?:and|or)$")
 
 _MODAL = re.compile(r"(?<![-\w])(?:shall|must|will|required|should)\b", re.IGNORECASE)
 
@@ -175,55 +176,93 @@ class _Buffer:
         return bool(self.parts) and bool(_TERMINAL.search(self.parts[-1][0]))
 
 
+def _ends_leadin(s: str) -> bool:
+    s = s.rstrip()
+    return s.endswith(":") or (s.endswith(("-", "—", "–")) and not s.endswith("--") and len(s) > 20)
+
+
+def _marker_types(marker: str) -> Tuple[str, ...]:
+    """Possible list levels for a marker: '(a)' alpha, '(1)' num, '(ii)' roman, '•' bullet."""
+    paren = marker.startswith("(")
+    core = marker.strip("().")
+    if not core or not core[0].isalnum():
+        return ("bullet",)
+    style = "p" if paren else "d"
+    if core.isdigit():
+        return (f"num{style}",)
+    if re.fullmatch(r"[ivx]+", core):
+        if len(core) == 1:
+            return (f"roman{style}", f"alpha{style}") if core == "i" else (f"alpha{style}", f"roman{style}")
+        return (f"roman{style}",)
+    return (f"alpha{style}",)
+
+
+class _Level:
+    def __init__(self, text: str, own: Tuple[str, ...] = ()) -> None:
+        self.text = text  # the lead-in that items at this level hang from
+        self.own = own  # marker types of the list item that opened it, if any
+        self.child: Optional[str] = None  # marker type of the items, once seen
+
+
 def walk(doc: Document) -> List[Sentence]:
     out: List[Sentence] = []
     section = ""
     title = ""
     ucf = ""
-    leadin = ""  # active list lead-in
+    levels: List[_Level] = []  # open list lead-ins, outermost first
     item_marker = ""  # marker of the list item in the buffer, if any
+    item_leadin = ""  # lead-in of that item
+    item_types: Tuple[str, ...] = ()
     in_toc = False
     buf = _Buffer()
 
-    def emit(sentence_text: str, p0: int, p1: int, marker: str = "", lead: str = "") -> None:
+    def emit(text: str, p0: int, p1: int, marker: str = "", lead: str = "", role: str = "") -> None:
         out.append(
             Sentence(
-                text=sentence_text, page_start=p0, page_end=max(p0, p1), section=section,
-                section_title=title, ucf=ucf, leadin=lead, marker=marker,
+                text=text, page_start=p0, page_end=max(p0, p1), section=section,
+                section_title=title, ucf=ucf, leadin=lead, marker=marker, role=role,
             )
         )
 
     def flush() -> None:
-        """Emit what the buffer holds. Returns nothing; may set the lead-in."""
-        nonlocal leadin, item_marker
+        nonlocal item_marker, item_leadin, item_types
         if not buf:
             return
-        text = buf.text()
-        pieces = split_sentences(text)
-        if item_marker:
-            for i, (off, s) in enumerate(pieces):
-                emit(s, buf.page_at(off), buf.last_page(), item_marker if i == 0 else "", leadin)
-            last = pieces[-1][1] if pieces else ""
-            if last.endswith(":"):
-                # nested lead-in such as "(b) for each server:" -> keep both levels
-                leadin = f"{leadin} {item_marker} {last}".strip()
-        else:
-            for i, (off, s) in enumerate(pieces):
-                is_last = i == len(pieces) - 1
-                if is_last and s.endswith(":") and _MODAL.search(s):
-                    leadin = s  # held back: the list items that follow carry it
-                    out.append(Sentence(s, buf.page_at(off), buf.last_page(), section, title, ucf, "", "LEADIN"))
-                else:
-                    emit(s, buf.page_at(off), buf.last_page())
-                    if is_last and s.endswith(":"):
-                        leadin = s
-                        out[-1].marker = "LEADIN-SOFT"
+        pieces = split_sentences(buf.text())
+        for i, (off, s) in enumerate(pieces):
+            first = i == 0
+            last = i == len(pieces) - 1
+            marker = item_marker if first else ""
+            lead = item_leadin if first else ""
+            role = ""
+            if last and _ends_leadin(s):
+                role = "leadin" if _MODAL.search(s) or (lead and _MODAL.search(lead)) else "soft"
+            emit(s, buf.page_at(off), buf.last_page(), marker, lead, role)
+            if role:
+                parent = f"{lead} {marker}".strip() if first else ""
+                levels.append(_Level(f"{parent} {s}".strip(), item_types if first else ()))
         buf.parts.clear()
-        item_marker = ""
+        item_marker, item_leadin, item_types = "", "", ()
 
     def end_list() -> None:
-        nonlocal leadin
-        leadin = ""
+        levels.clear()
+
+    def open_item(marker: str) -> str:
+        """Find the lead-in a new list item belongs to, closing deeper levels."""
+        types = _marker_types(marker)
+        while levels:
+            top = levels[-1]
+            if top.child is None:
+                if top.own and types[0] in top.own:
+                    # "(a) ... as follows:" then "(b)": a sibling of the item that opened the level
+                    levels.pop()
+                    continue
+                top.child = types[0]
+                return top.text
+            if top.child in types:
+                return top.text
+            levels.pop()
+        return ""
 
     for page_no, lines in enumerate(doc.pages, start=1):
         for line in lines:
@@ -249,7 +288,8 @@ def walk(doc: Document) -> List[Sentence]:
                 flush(); end_list()
                 continue
             m = _ATTACH.match(line)
-            if m and (m.group("title") is None or _is_title(m.group("title") or "")):
+            if m and (not buf or buf.ends_terminal()) and (
+                    m.group("title") is None or _is_title(m.group("title") or "")):
                 flush(); end_list()
                 section = f"{m.group('kind').title()} {m.group('id')}"
                 title = (m.group("title") or "").strip()
@@ -263,7 +303,10 @@ def walk(doc: Document) -> List[Sentence]:
                 structured = "." in num  # 3.1, L.4, C.3.2
                 heading_like = _is_title(rest)
                 mid_sentence = bool(buf) and not buf.ends_terminal()
-                if (structured or (dot and heading_like)) and not (mid_sentence and not heading_like and not lettered):
+                # "1. Section I - General Information" inside L.4.2.1 is a list item, not a new section
+                nested = not structured and bool(re.match(r"^[A-M]\.\d", section or ""))
+                if (structured or (dot and heading_like)) and not nested and not (
+                        mid_sentence and not heading_like and not lettered):
                     flush(); end_list()
                     if lettered:
                         ucf = num[0]
@@ -277,12 +320,18 @@ def walk(doc: Document) -> List[Sentence]:
                     continue
 
             m = _MARKER.match(line)
-            if m and (leadin or item_marker or m.group("m")[0] in "(•▪●◦*-–"):
+            if m and (levels or item_marker or m.group("m")[0] in "(•▪●◦*-–"):
                 flush()
                 item_marker = m.group("m")
+                item_types = _marker_types(item_marker)
+                item_leadin = open_item(item_marker)
                 buf.add(m.group("rest"), page_no)
                 continue
 
+            if (not buf or buf.ends_terminal()) and _is_title(line) and not _TERMINAL.search(line):
+                # an unnumbered heading line such as "Notice to Offerors - Contents Review"
+                flush()
+                continue
             if item_marker and buf.ends_terminal() and line[:1].isupper():
                 # the list item finished; this is a new paragraph
                 flush(); end_list()
@@ -297,21 +346,17 @@ def _expand(sentences: Iterable[Sentence]) -> List[Sentence]:
     sentences = list(sentences)
     result: List[Sentence] = []
     for i, s in enumerate(sentences):
-        if s.marker in ("LEADIN", "LEADIN-SOFT"):
-            has_items = i + 1 < len(sentences) and sentences[i + 1].leadin.startswith(s.text)
-            if s.marker == "LEADIN" and not has_items:
-                s.marker = ""
-                result.append(s)
-            elif s.marker == "LEADIN-SOFT":
-                s.marker = ""
-                result.append(s)
-            continue
+        if s.role == "leadin":
+            nxt = sentences[i + 1] if i + 1 < len(sentences) else None
+            if nxt is not None and nxt.leadin and nxt.leadin.endswith(s.text):
+                continue  # its items carry it
         if not s.leadin:
             split = split_inline_list(s.text)
             if split and _MODAL.search(split[0]):
                 head, items = split
+                lead = f"{s.marker} {head}".strip()
                 for marker, body in items:
-                    result.append(Sentence(body, s.page_start, s.page_end, s.section, s.section_title, s.ucf, head, marker))
+                    result.append(Sentence(body, s.page_start, s.page_end, s.section, s.section_title, s.ucf, lead, marker))
                 continue
         result.append(s)
     return result

@@ -39,7 +39,7 @@ GOVERNMENT = [
     "co", "ko", "agency", "department", "buyer", "purchaser", "owner", "county", "city", "state",
     "commonwealth", "university", "district", "authority", "commission", "board", "purchasing",
     "procurement office", "issuing office", "evaluation team", "evaluation board", "evaluators",
-    "source selection authority", "ssa", "sseb", "we", "us",
+    "source selection authority", "ssa", "sseb", "pco", "aco", "we", "us",
 ]
 OFFEROR = [
     "offeror", "offerors", "offeror's", "quoter", "quoters", "bidder", "bidders", "proposer",
@@ -130,10 +130,25 @@ def _phrase_regex(words: Iterable[str]) -> re.Pattern:
     return re.compile(r"\b(?:" + "|".join(alts) + r")\b", re.IGNORECASE)
 
 
+# a preposition, then an optional article and capitalised name words: "filed with the Government
+# Accountability Office (" is the object of "with", so "GAO" after it is not the subject either
+_OBJECT_OF = re.compile(
+    r"\b(?:to|for|with|from|by|on|upon|of|at|into|through|via|To|For|With|From|By|On|Upon|At)\s+"
+    r"(?:the\s+|a\s+|an\s+|any\s+|each\s+|The\s+)?(?:[A-Z][\w'’&\-]*\s+(?:of\s+|and\s+|for\s+)?)*\(?$"
+)
+
+
 def _nearest(text: str, patterns: Dict[str, re.Pattern]) -> Optional[str]:
+    """Label of the last subject-like mention in text.
+
+    A Government mention right after a preposition ("filed with the GAO",
+    "submit to the Contracting Officer") is an object, not the subject.
+    """
     best, where = None, -1
     for label, pat in patterns.items():
         for m in pat.finditer(text):
+            if label == "Government" and _OBJECT_OF.search(text[: m.start()]):
+                continue
             if m.end() > where:
                 best, where = label, m.end()
     return best
@@ -160,10 +175,11 @@ def classify_actor(subject: str, keyword: str, ucf: str, gov_extra: Sequence[str
     words = subject.split()
     window = " ".join(words[-10:])
     actor = _nearest(window, pats)
-    if actor == "Government" and re.search(r"\b(?:to|for|with|from|by)\s+(?:the\s+)?(?:\w+\s+){0,2}$", window):
-        actor = None  # "deliver to the Government shall" is unusual; treat as unclear
+    if ucf == "M" and kw.startswith("will") and actor in ("Contractor", "Ambiguous"):
+        # Section M describes the evaluation: "the team will verify", "the approach will be"
+        return "Government"
     if actor == "Ambiguous":
-        actor = "Offeror" if ucf in UCF_OFFEROR else "Contractor"
+        actor = "Offeror" if ucf in UCF_OFFEROR or ucf == "M" else "Contractor"
     if actor:
         return actor
     if ucf in UCF_OFFEROR:
@@ -252,6 +268,44 @@ def _clause_key(num: str):
     head, tail = num.split("-", 1)
     a, b = head.split(".", 1)
     return (int(a), int(b), int(tail))
+
+
+_ABBR = re.compile(r"((?:\b(?:of|for|on|and|the|[A-Z][\w&\-]*)\s+){1,8})\((?P<abbr>[A-Z][A-Za-z]{1,7})\)")
+_AGENCY_WORDS = {
+    "department", "office", "agency", "administration", "bureau", "service", "command", "commission",
+    "corps", "authority", "directorate", "division", "ministry", "secretary",
+}
+_SMALL = {"of", "for", "on", "and", "the"}
+
+
+def government_names(pages: Sequence[Sequence[str]]) -> List[str]:
+    """Abbreviations a solicitation defines for government bodies, e.g. "Department of Energy (DOE)".
+
+    The name must start or end with an agency word and its initials must spell
+    the abbreviation, so "Product and Service Code (PSC)" is not picked up.
+    """
+    text = " ".join(line for lines in pages for line in lines)
+    names: List[str] = []
+    for m in _ABBR.finditer(text):
+        abbr = m.group("abbr")
+        if sum(c.isupper() for c in abbr) < 2:
+            continue
+        words = m.group(1).split()
+        while words and words[0] in _SMALL:
+            words.pop(0)
+        for start in range(len(words)):
+            name = words[start:]
+            if name[0] in _SMALL:
+                continue
+            if name[0].lower() not in _AGENCY_WORDS and name[-1].lower() not in _AGENCY_WORDS:
+                continue
+            caps = "".join(w[0] for w in name if w not in _SMALL)
+            full = "".join(w[0] for w in name if w != "the")
+            if abbr.upper() in (caps.upper(), full.upper()):
+                if abbr not in names:
+                    names.append(abbr)
+                break
+    return names
 
 
 def find_clauses(pages: Sequence[Sequence[str]]) -> List[Clause]:
