@@ -58,23 +58,28 @@ def _cell(req: Requirement, col: str) -> str:
     }.get(col, req.responses.get(col, ""))
 
 
+def plural(n: int, word: str) -> str:
+    return f"{n} {word}" if n == 1 else f"{n} {word}s"
+
+
 def summary_lines(m: Matrix) -> List[str]:
     c = m.counts()
     parts = [f"{c.get(a, 0)} {a.lower()}" for a in ACTORS if c.get(a, 0)]
-    lines = [f"{len(m.requirements)} requirements: " + (", ".join(parts) if parts else "none")]
+    lines = [plural(len(m.requirements), "requirement") + ": " + (", ".join(parts) if parts else "none")]
     by_ucf = Counter(r.ucf or "-" for r in m.requirements)
     if any(k != "-" for k in by_ucf):
         order = sorted(by_ucf, key=lambda k: (k == "-", k))
         lines.append("by UCF section: " + ", ".join(f"{k if k != '-' else 'other'} {by_ucf[k]}" for k in order))
     if m.clauses:
         titled = sum(1 for cl in m.clauses if cl.title)
-        lines.append(f"{len(m.clauses)} FAR/DFARS clauses referenced ({titled} with titles)")
+        label = "clause" if len(m.clauses) == 1 else "clauses"
+        lines.append(f"{len(m.clauses)} FAR/DFARS {label} referenced ({titled} with titles)")
     if m.is_update:
         ch = Counter(r.change for r in m.requirements)
         lines.append(
             f"vs {m.previous_source}: {ch.get('Unchanged', 0)} unchanged, {ch.get('Changed', 0)} changed, "
             f"{ch.get('New', 0)} new, {len(m.removed)} removed; responses carried to "
-            f"{sum(1 for r in m.requirements if r.change in ('Unchanged', 'Changed') and any(r.responses.values()))} rows"
+            + plural(sum(1 for r in m.requirements if r.change in ("Unchanged", "Changed") and any(r.responses.values())), "row")
         )
     return lines
 

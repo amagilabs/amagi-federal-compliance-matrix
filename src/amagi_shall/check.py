@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Sequence
 
-from .render import COMPLIANCE_CHOICES, read_matrix_xlsx
+from .render import COMPLIANCE_CHOICES, plural, read_matrix_xlsx
 
 
 @dataclass
@@ -65,8 +65,8 @@ def _short(rec: Dict[str, str], width: int = 78) -> str:
 
 def report(res: CheckResult, limit: int = 15) -> str:
     lines = [f"amagi-shall check: {res.path.name}"]
-    skipped = f" ({res.skipped_government} Government rows skipped)" if res.skipped_government else ""
-    lines.append(f"  {res.considered} rows to answer{skipped}")
+    skipped = f" ({plural(res.skipped_government, 'Government row')} skipped)" if res.skipped_government else ""
+    lines.append(f"  {plural(res.considered, 'row')} to answer{skipped}")
     for col, rows in res.blank.items():
         lines.append(f"  {res.considered - len(rows)} answered, {len(rows)} blank {col}")
     if res.invalid:

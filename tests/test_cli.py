@@ -74,6 +74,15 @@ def test_no_requirements_warns(make_txt, tmp_path, capsys):
     assert "warning: no shall/must/will/required" in capsys.readouterr().out
 
 
+def test_summary_uses_singular_for_one(make_txt, tmp_path, capsys):
+    text = "SECTION C - PWS\nThe Contractor shall comply with FAR 52.222-41.\n"
+    assert main([str(make_txt(text)), "-o", str(tmp_path)]) == 0
+    out = capsys.readouterr().out
+    assert "(1 page)" in out
+    assert "1 requirement: 1 contractor" in out
+    assert "1 FAR/DFARS clause referenced" in out
+
+
 def test_update_sample(answered_xlsx, amendment_pdf, tmp_path, capsys):
     assert main(["update", str(answered_xlsx), str(amendment_pdf), "-o", str(tmp_path), "--format", "xlsx"]) == 0
     out = capsys.readouterr().out
