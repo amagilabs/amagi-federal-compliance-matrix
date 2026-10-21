@@ -125,7 +125,7 @@ def _emit(m: Matrix, args: argparse.Namespace) -> int:
         for p in written:
             print(p)
         return 0
-    print(f"amagi-shall {__version__}  {m.source} ({m.pages} pages)")
+    print(f"amagi-shall {__version__}  {m.source} ({m.pages} page{'' if m.pages == 1 else 's'})")
     for line in summary_lines(m):
         print(f"  {line}")
     for w in m.warnings:

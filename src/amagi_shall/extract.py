@@ -123,7 +123,7 @@ def load(path) -> Document:
     total_chars = sum(len(l) for p in pages for l in p)
     if suffix == ".pdf" and total_chars < 20 * max(1, len(pages)) and total_chars < 200:
         raise NoTextError(
-            f"{path.name} has no usable text layer ({len(pages)} pages, {total_chars} characters). "
+            f"{path.name} has no usable text layer ({len(pages)} page{'' if len(pages) == 1 else 's'}, {total_chars} characters). "
             "It is probably a scan: run OCR first (for example `ocrmypdf in.pdf out.pdf`)."
         )
     pages, removed = _strip_furniture(pages)
