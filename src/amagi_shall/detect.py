@@ -189,7 +189,7 @@ def _kind(keyword: str, actor: str) -> str:
 def _norm_kw(raw: str) -> str:
     kw = re.sub(r"\s+", " ", raw.lower()).strip()
     if "required" in kw:
-        return "not required" if kw.startswith("not ") else "required"
+        return "not required" if re.search(r"(?:^|\s)not\s", kw) else "required"
     return kw
 
 

@@ -1,7 +1,7 @@
 """Write simple text-only PDFs with no third-party dependencies.
 
 Used to build test fixtures: each page is a list of text lines set in
-Helvetica, one line per row, top to bottom. Good enough for pypdf to extract
+Helvetica, one line per row, top to bottom. Good enough for pdfplumber to extract
 the same lines back out, which is all the tests need.
 """
 
