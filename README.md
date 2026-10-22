@@ -9,18 +9,12 @@ amagi-federal-compliance-matrix rebuilds the matrix and keeps the answers you al
 Built for small government contractors and subcontractors who write their own proposals. It runs
 on your machine with no account and no API key, and the solicitation stays on your computer.
 
-![demo](assets/demo.gif)
+![demo](https://raw.githubusercontent.com/amagilabs/amagi-federal-compliance-matrix/master/assets/demo.gif)
 
 ## Install
 
 ```
 pipx install amagi-federal-compliance-matrix
-```
-
-Not on PyPI yet. Until it is, install from a clone of this repo:
-
-```
-pipx install .
 ```
 
 Python 3.9 or newer.
