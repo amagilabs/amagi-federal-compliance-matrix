@@ -34,7 +34,7 @@ BASE = [
     ("h", "OFFICE OF EXAMPLE RECORDS (FICTIONAL)"),
     ("h", f"SOLICITATION NO. {SOL}"),
     ("h", "HELP DESK AND END-USER SUPPORT SERVICES"),
-    ("p", "This is a sample solicitation written to demonstrate amagi-shall. The agency, the "
+    ("p", "This is a sample solicitation written to demonstrate amagi-federal-compliance-matrix. The agency, the "
           "requirements and the dates are fictional."),
     ("h", "TABLE OF CONTENTS"),
     ("toc", "SECTION B - SUPPLIES OR SERVICES AND PRICES .......... 1"),
@@ -164,7 +164,7 @@ def answered_matrix(base_pdf: Path, target: Path) -> None:
     """Build the base matrix with the real tool, then type in demo answers."""
     from openpyxl import load_workbook
 
-    from amagi_shall.cli import main
+    from amagi_federal_compliance_matrix.cli import main
 
     tmp = target.parent / "_tmp_matrix"
     with contextlib.redirect_stdout(io.StringIO()):

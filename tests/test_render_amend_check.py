@@ -5,10 +5,10 @@ import json
 import pytest
 from openpyxl import Workbook, load_workbook
 
-from amagi_shall.amend import carry_forward, normalize
-from amagi_shall.check import check, report
-from amagi_shall.detect import Requirement
-from amagi_shall.render import Matrix, read_matrix_xlsx, to_csv, to_json, to_markdown, write_outputs
+from amagi_federal_compliance_matrix.amend import carry_forward, normalize
+from amagi_federal_compliance_matrix.check import check, report
+from amagi_federal_compliance_matrix.detect import Requirement
+from amagi_federal_compliance_matrix.render import Matrix, read_matrix_xlsx, to_csv, to_json, to_markdown, write_outputs
 
 
 def req(id_, text, actor="Contractor", page_end=1):

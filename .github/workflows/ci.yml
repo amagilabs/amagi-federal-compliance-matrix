@@ -19,5 +19,5 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: python -m pip install -e ".[dev]"
       - run: python -m pytest -q
-      - run: amagi-shall examples/sample_solicitation.pdf -o out
-      - run: amagi-shall update examples/sample_matrix_answered.xlsx examples/sample_solicitation_amd0001.pdf -o out
+      - run: amagi-federal-compliance-matrix examples/sample_solicitation.pdf -o out
+      - run: amagi-federal-compliance-matrix update examples/sample_matrix_answered.xlsx examples/sample_solicitation_amd0001.pdf -o out

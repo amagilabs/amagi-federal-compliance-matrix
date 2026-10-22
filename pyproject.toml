@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "amagi-shall"
+name = "amagi-federal-compliance-matrix"
 version = "0.1.0"
 description = "Turn a federal RFP or solicitation PDF into a compliance matrix (XLSX + markdown) with a blank response column, and carry your answers forward when an amendment drops."
 readme = "README.md"
@@ -28,10 +28,10 @@ dependencies = [
 dev = ["pytest>=7.0"]
 
 [project.urls]
-Homepage = "https://github.com/amagilabs/amagi-shall"
+Homepage = "https://github.com/amagilabs/amagi-federal-compliance-matrix"
 
 [project.scripts]
-amagi-shall = "amagi_shall.cli:main"
+amagi-federal-compliance-matrix = "amagi_federal_compliance_matrix.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

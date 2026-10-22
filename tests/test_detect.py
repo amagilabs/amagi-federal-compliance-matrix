@@ -1,4 +1,4 @@
-from amagi_shall.detect import classify_actor, find_clauses
+from amagi_federal_compliance_matrix.detect import classify_actor, find_clauses
 
 
 def one(run_reqs, text, **opts):
@@ -24,7 +24,7 @@ def test_definitions_skipped(run_reqs):
 
 
 def test_hyphenated_name_is_not_a_keyword(run_reqs):
-    assert run_reqs("This file was made with amagi-shall for testing.\n") == []
+    assert run_reqs("This file was made with amagi-federal-compliance-matrix for testing.\n") == []
 
 
 def test_should_is_opt_in(run_reqs):

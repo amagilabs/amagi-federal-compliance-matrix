@@ -1,9 +1,9 @@
 ---
-name: amagi-shall
-description: Build a federal-style compliance matrix from an RFP or solicitation PDF with the local amagi-shall CLI. Every shall, must, will and required sentence becomes a row with section, UCF letter, page, who it binds (Offeror, Contractor, Government) and blank Compliance / Proposal Reference / Owner / Response columns, exported as XLSX and markdown. Also carries answers forward onto an amended solicitation (update) and lists unanswered rows before submission (check). Use when asked for a compliance matrix, the shall statements in Section L or C, what changed in an amendment, or which matrix rows are still blank. Runs offline, no API key.
+name: amagi-federal-compliance-matrix
+description: Build a federal-style compliance matrix from an RFP or solicitation PDF with the local amagi-federal-compliance-matrix CLI. Every shall, must, will and required sentence becomes a row with section, UCF letter, page, who it binds (Offeror, Contractor, Government) and blank Compliance / Proposal Reference / Owner / Response columns, exported as XLSX and markdown. Also carries answers forward onto an amended solicitation (update) and lists unanswered rows before submission (check). Use when asked for a compliance matrix, the shall statements in Section L or C, what changed in an amendment, or which matrix rows are still blank. Runs offline, no API key.
 ---
 
-# amagi-shall
+# amagi-federal-compliance-matrix
 
 A CLI that reads a solicitation and writes a compliance matrix you fill in:
 
@@ -24,9 +24,9 @@ A CLI that reads a solicitation and writes a compliance matrix you fill in:
 
 ## How to use it
 
-1. Check it is installed: `amagi-shall --version`. If not: `pipx install amagi-shall` (or
+1. Check it is installed: `amagi-federal-compliance-matrix --version`. If not: `pipx install amagi-federal-compliance-matrix` (or
    `pipx install .` from a clone of the repo).
-2. Build the matrix: `amagi-shall solicitation.pdf -o <dir>`. Useful options:
+2. Build the matrix: `amagi-federal-compliance-matrix solicitation.pdf -o <dir>`. Useful options:
    - `--stdout json` prints the rows as JSON and writes nothing, when you want to reason over them.
    - `--offeror-only` keeps rows that bind the offeror (Section L/K work) plus Unclear rows.
    - `--skip-ucf I,J` drops full-text clauses and attachments.
@@ -35,11 +35,11 @@ A CLI that reads a solicitation and writes a compliance matrix you fill in:
      Abbreviations the document defines, like "Department of Energy (DOE)", are picked up already.
 3. Read the summary back: requirement count, the Offeror / Contractor / Government split, the
    count per UCF section, and the clause count.
-4. When an amendment drops: `amagi-shall update old_matrix.xlsx amendment.pdf -o <dir>`. Each row
+4. When an amendment drops: `amagi-federal-compliance-matrix update old_matrix.xlsx amendment.pdf -o <dir>`. Each row
    is marked Unchanged, Changed (old wording kept in Previous Text) or New, and removed rows are
    listed with their old answers. Tell the user to re-check every Changed and New row; answers on
    Changed rows are carried over but may no longer be right.
-5. Before submission: `amagi-shall check matrix.xlsx`. Exit code 3 means rows still need an
+5. Before submission: `amagi-federal-compliance-matrix check matrix.xlsx`. Exit code 3 means rows still need an
    answer; the report lists them and any Exception or Partial answers.
 
 ## Review pass for Claude

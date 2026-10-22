@@ -1,4 +1,4 @@
-"""Command line: amagi-shall [matrix] FILE | update OLD.xlsx NEW.pdf | check MATRIX.xlsx"""
+"""Command line: amagi-federal-compliance-matrix [matrix] FILE | update OLD.xlsx NEW.pdf | check MATRIX.xlsx"""
 
 from __future__ import annotations
 
@@ -54,15 +54,15 @@ def _add_matrix_options(p: argparse.ArgumentParser) -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="amagi-shall",
+        prog="amagi-federal-compliance-matrix",
         description="Turn an RFP or solicitation PDF into a compliance matrix: every shall, must, will "
                     "and required sentence with section, page and blank response columns.",
-        epilog="Examples:\n  amagi-shall solicitation.pdf\n"
-               "  amagi-shall update old_matrix.xlsx amendment_0001.pdf\n"
-               "  amagi-shall check old_matrix.xlsx",
+        epilog="Examples:\n  amagi-federal-compliance-matrix solicitation.pdf\n"
+               "  amagi-federal-compliance-matrix update old_matrix.xlsx amendment_0001.pdf\n"
+               "  amagi-federal-compliance-matrix check old_matrix.xlsx",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("--version", action="version", version=f"amagi-shall {__version__}")
+    parser.add_argument("--version", action="version", version=f"amagi-federal-compliance-matrix {__version__}")
     sub = parser.add_subparsers(dest="command", metavar="{matrix,update,check}")
 
     pm = sub.add_parser("matrix", help="build a matrix from a solicitation (the default command)")
@@ -90,7 +90,7 @@ def _normalize_argv(argv: List[str]) -> List[str]:
     if argv and argv[0] not in COMMANDS and not argv[0].startswith("-"):
         return ["matrix"] + argv
     if argv and argv[0].startswith("-") and argv[0] not in ("-h", "--help", "--version"):
-        # options before the file: amagi-shall -o out solicitation.pdf
+        # options before the file: amagi-federal-compliance-matrix -o out solicitation.pdf
         return ["matrix"] + argv
     return argv
 
@@ -125,7 +125,7 @@ def _emit(m: Matrix, args: argparse.Namespace) -> int:
         for p in written:
             print(p)
         return 0
-    print(f"amagi-shall {__version__}  {m.source} ({m.pages} page{'' if m.pages == 1 else 's'})")
+    print(f"amagi-federal-compliance-matrix {__version__}  {m.source} ({m.pages} page{'' if m.pages == 1 else 's'})")
     for line in summary_lines(m):
         print(f"  {line}")
     for w in m.warnings:

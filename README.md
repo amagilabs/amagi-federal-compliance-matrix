@@ -1,10 +1,10 @@
-# amagi-shall
+# amagi-federal-compliance-matrix
 
 Turn a federal RFP or solicitation PDF into a compliance matrix you can start answering today.
 Every "shall", "must", "will" and "required" sentence becomes a row with its section, UCF
 letter, page, and who it binds, followed by blank Compliance, Proposal Reference, Owner and
 Response columns. You get an Excel workbook and a markdown copy. When Amendment 0001 drops,
-amagi-shall rebuilds the matrix and keeps the answers you already wrote.
+amagi-federal-compliance-matrix rebuilds the matrix and keeps the answers you already wrote.
 
 Built for small government contractors and subcontractors who write their own proposals. It runs
 on your machine with no account and no API key, and the solicitation stays on your computer.
@@ -14,7 +14,7 @@ on your machine with no account and no API key, and the solicitation stays on yo
 ## Install
 
 ```
-pipx install amagi-shall
+pipx install amagi-federal-compliance-matrix
 ```
 
 Not on PyPI yet. Until it is, install from a clone of this repo:
@@ -28,8 +28,8 @@ Python 3.9 or newer.
 ## Usage
 
 ```
-$ amagi-shall sample_solicitation.pdf -o out
-amagi-shall 0.1.0  sample_solicitation.pdf (3 pages)
+$ amagi-federal-compliance-matrix sample_solicitation.pdf -o out
+amagi-federal-compliance-matrix 0.1.0  sample_solicitation.pdf (3 pages)
   33 requirements: 15 offeror, 14 contractor, 4 government
   by UCF section: B 1, C 15, L 14, M 3
   5 FAR/DFARS clauses referenced (4 with titles)
@@ -68,8 +68,8 @@ DFARS clause number the document cites, with the title and date when the text gi
 ### When an amendment comes out
 
 ```
-$ amagi-shall update sample_matrix_answered.xlsx sample_solicitation_amd0001.pdf -o out
-amagi-shall 0.1.0  sample_solicitation_amd0001.pdf (3 pages)
+$ amagi-federal-compliance-matrix update sample_matrix_answered.xlsx sample_solicitation_amd0001.pdf -o out
+amagi-federal-compliance-matrix 0.1.0  sample_solicitation_amd0001.pdf (3 pages)
   33 requirements: 14 offeror, 15 contractor, 4 government
   by UCF section: B 1, C 16, L 13, M 3
   5 FAR/DFARS clauses referenced (4 with titles)
@@ -88,8 +88,8 @@ columns you added to the workbook yourself carry over too.
 ### Before you submit
 
 ```
-$ amagi-shall check sample_matrix_answered.xlsx
-amagi-shall check: sample_matrix_answered.xlsx
+$ amagi-federal-compliance-matrix check sample_matrix_answered.xlsx
+amagi-federal-compliance-matrix check: sample_matrix_answered.xlsx
   29 rows to answer (4 Government rows skipped)
   28 answered, 1 blank Compliance
   1 Exception, 0 Partial
@@ -106,17 +106,17 @@ script. `--require Compliance,Owner` makes more columns mandatory.
 ### Options
 
 ```
-amagi-shall FILE                       write FILE_matrix.xlsx and FILE_matrix.md here
-amagi-shall FILE -o out/               write them to out/
-amagi-shall FILE --format xlsx,md,csv,json
-amagi-shall FILE --stdout json         print the rows, write no files
-amagi-shall FILE --offeror-only        only what goes in the proposal (plus Unclear rows)
-amagi-shall FILE --skip-ucf I,J        leave out full-text clauses and attachments
-amagi-shall FILE --no-will             drop sentences whose only keyword is "will"
-amagi-shall FILE --include-should      add "should" sentences as Desirable rows
-amagi-shall FILE --government NASA     treat another name as the buyer (repeatable)
-amagi-shall update OLD.xlsx NEW.pdf    rebuild after an amendment, keep your answers
-amagi-shall check MATRIX.xlsx          list rows that still need an answer
+amagi-federal-compliance-matrix FILE                       write FILE_matrix.xlsx and FILE_matrix.md here
+amagi-federal-compliance-matrix FILE -o out/               write them to out/
+amagi-federal-compliance-matrix FILE --format xlsx,md,csv,json
+amagi-federal-compliance-matrix FILE --stdout json         print the rows, write no files
+amagi-federal-compliance-matrix FILE --offeror-only        only what goes in the proposal (plus Unclear rows)
+amagi-federal-compliance-matrix FILE --skip-ucf I,J        leave out full-text clauses and attachments
+amagi-federal-compliance-matrix FILE --no-will             drop sentences whose only keyword is "will"
+amagi-federal-compliance-matrix FILE --include-should      add "should" sentences as Desirable rows
+amagi-federal-compliance-matrix FILE --government NASA     treat another name as the buyer (repeatable)
+amagi-federal-compliance-matrix update OLD.xlsx NEW.pdf    rebuild after an amendment, keep your answers
+amagi-federal-compliance-matrix check MATRIX.xlsx          list rows that still need an answer
 ```
 
 FILE can be a `.pdf` or a `.txt`. Exit codes: 0 success, 1 the file can't be read, 2 the PDF has
@@ -140,7 +140,7 @@ contents lines are removed before sentences are split.
 
 ## Limits
 
-amagi-shall gives you a first draft of the matrix. Read the solicitation and check each row
+amagi-federal-compliance-matrix gives you a first draft of the matrix. Read the solicitation and check each row
 before you rely on it.
 
 - Scanned PDFs have no text to read. Run them through OCR first, for example
@@ -159,14 +159,14 @@ before you rely on it.
 
 ## Use it from Claude Code
 
-The repo ships a [SKILL.md](SKILL.md). Copy it to `~/.claude/skills/amagi-shall/SKILL.md` and
-Claude Code will run amagi-shall when you ask for a compliance matrix, the shall statements in a
+The repo ships a [SKILL.md](SKILL.md). Copy it to `~/.claude/skills/amagi-federal-compliance-matrix/SKILL.md` and
+Claude Code will run amagi-federal-compliance-matrix when you ask for a compliance matrix, the shall statements in a
 section, or what changed in an amendment. It also has Claude review the rows the rules are least
 sure of.
 
 ## Star it if it saved you a weekend
 
-If amagi-shall spared you a weekend of pasting shall statements into a spreadsheet, a star helps
+If amagi-federal-compliance-matrix spared you a weekend of pasting shall statements into a spreadsheet, a star helps
 other small contractors find it. The most useful bug report is a link to a public solicitation
 that trips it up.
 

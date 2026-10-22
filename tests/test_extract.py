@@ -1,6 +1,6 @@
 import pytest
 
-from amagi_shall.extract import ExtractError, NoTextError, load
+from amagi_federal_compliance_matrix.extract import ExtractError, NoTextError, load
 
 
 def test_pdf_pages_and_hash(make_pdf):

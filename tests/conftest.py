@@ -46,9 +46,9 @@ def make_txt(tmp_path):
 @pytest.fixture
 def run_reqs(make_txt):
     """run_reqs("text", **options) -> list of Requirement from a text file."""
-    from amagi_shall.detect import Options, detect
-    from amagi_shall.extract import load
-    from amagi_shall.segment import walk
+    from amagi_federal_compliance_matrix.detect import Options, detect
+    from amagi_federal_compliance_matrix.extract import load
+    from amagi_federal_compliance_matrix.segment import walk
 
     def _run(text, **opts):
         return detect(walk(load(make_txt(text))), Options(**opts))

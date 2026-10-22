@@ -1,5 +1,5 @@
-from amagi_shall.extract import load
-from amagi_shall.segment import split_inline_list, split_sentences, walk
+from amagi_federal_compliance_matrix.extract import load
+from amagi_federal_compliance_matrix.segment import split_inline_list, split_sentences, walk
 
 
 def texts(pairs):

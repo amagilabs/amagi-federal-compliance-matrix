@@ -1,8 +1,8 @@
 """Regression tests for layouts found in real federal solicitations (DOE and Navy drafts)."""
 
-from amagi_shall.detect import government_names
-from amagi_shall.extract import _PAGE_NUM, load
-from amagi_shall.segment import walk
+from amagi_federal_compliance_matrix.detect import government_names
+from amagi_federal_compliance_matrix.extract import _PAGE_NUM, load
+from amagi_federal_compliance_matrix.segment import walk
 
 
 def _walk(make_txt, text):

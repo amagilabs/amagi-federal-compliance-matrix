@@ -4,8 +4,8 @@ from pathlib import Path
 import pytest
 from openpyxl import load_workbook
 
-from amagi_shall import __version__
-from amagi_shall.cli import main
+from amagi_federal_compliance_matrix import __version__
+from amagi_federal_compliance_matrix.cli import main
 
 
 def test_version(capsys):
